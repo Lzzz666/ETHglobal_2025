@@ -28,8 +28,8 @@ export default function SubscriptionManager() {
   const currentChainId = useChainId();
   const { data: walletClient } = useWalletClient();
 
-  const totalMonthlyCost = 200;
-  const paidThisMonth = 80;
+  const totalMonthlyCost = 40;
+  const paidThisMonth = 10;
   const historicalTotalPaid = 150;
 
   const handleTransfer = (sub) => {
@@ -53,7 +53,7 @@ export default function SubscriptionManager() {
 
       const tokenId = transferSub.tokenId;
       const contractAddress = NFT_CONTRACT;
-
+      console.log("🚀 UserAddress:", userAddress);
       console.log("🚀 Transferring token:", tokenId, "to", transferTarget);
 
       const hash = await walletClient.writeContract({

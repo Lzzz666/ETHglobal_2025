@@ -200,7 +200,7 @@ export default function SubHub() {
   const [selectedCategory, setSelectedCategory] = useState("AI Tool");
   const [showModal, setShowModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
-  const [subscribedList, setSubscribedList] = useState(["ChatGPT Pro"]);
+  const [subscribedList, setSubscribedList] = useState([""]);
   const { writeContractAsync } = useWriteContract();
   const { address: userAddress } = useAccount();
   const isSubscribed = (serviceName) => subscribedList.includes(serviceName);
@@ -215,19 +215,9 @@ export default function SubHub() {
   const { connectors, connect } = useConnect()
   console.log("Connectors:", connectors)
 
-  const to = '0x2Ac66a303fBfe2a5f2a265D69aea6EC58ae3B99a';
-
-
   const filtered = sampleServices.filter(
     (s) => s.category === selectedCategory
   );
-
-  const parsePrice = (priceString) => {
-    const numericString = priceString.replace(/^\$/, '').split('/')[0];
-    const value = parseFloat(numericString);
-    return value;
-  };
-
 
   const handleSubscribe = async (service) => {
     console.log("🔔 Subscribing to:", service.name);
@@ -261,7 +251,7 @@ export default function SubHub() {
       });
   
       console.log("📤 Transaction sent. Hash:", txHash);
-  
+      setSubscribedList((prev) => [...prev, service.name]);
       // 4. Wait for confirmation
       const receipt = await waitForTransactionReceipt(config, { hash: txHash });
       if (receipt.status === 'success') {
