@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import "./SubHub.css";
 
-import { useSendTransaction } from 'wagmi'
+import { useWriteContract, useWaitForTransactionReceipt, useConnect,useChainId, useAccount} from "wagmi";
 import { parseEther } from 'viem'
-
-import { useConnect } from 'wagmi'
-
-const NFT_CONTRACT = '0xYourContractAddress';
+import {supportedChains,config} from '../../config'
+import { waitForTransactionReceipt } from 'wagmi/actions';
 const categories = ["AI Tool", "App","Web3", "Community"];
+import { ERC721_ABI } from "../abi/ERC721";
+const polygonAmoy = supportedChains.find((chain) => chain.id === 80002);
 
 const sampleServices = [
   {
@@ -201,52 +201,87 @@ export default function SubHub() {
   const [showModal, setShowModal] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [subscribedList, setSubscribedList] = useState(["ChatGPT Pro"]);
-  const { data: hash, isPending,sendTransaction } = useSendTransaction()
+  const { writeContractAsync } = useWriteContract();
+  const { address: userAddress } = useAccount();
   const isSubscribed = (serviceName) => subscribedList.includes(serviceName);
+  const { writeContract, data: hash, isPending, error } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
+  const currentChainId = useChainId();
+  
+  const CONTRACT_ADDRESS = "0x5BD6BA046bCC634A52214D6c0b96b0c1739CE96A";
 
   const { connectors, connect } = useConnect()
   console.log("Connectors:", connectors)
 
-  const to = '0x176f78E74dcB519b3F05A929496f13886DA26418';
-  const value = '100'; // 100 wei, 0.0001 ETH
+  const to = '0x2Ac66a303fBfe2a5f2a265D69aea6EC58ae3B99a';
 
 
   const filtered = sampleServices.filter(
     (s) => s.category === selectedCategory
   );
 
-  // const handleSubscribe = async (service) => {
-  //   try {
-  //     const priceEth = parseFloat(service.price.replace(/[^0-9.]/g, ""));
-  
-  //     const tx = await writeContract(config, {
-  //       address: NFT_CONTRACT,
-  //       abi: SUB_NFT_ABI,
-  //       functionName: 'subscribe',
-  //       args: [service.name],
-  //       value: parseEther(priceEth.toString()), // 若以 ETH 付款
-  //     });
-  
-  //     const receipt = await waitForTransactionReceipt(config, { hash: tx.hash });
-  
-  //     if (receipt.status === 'success') {
-  //       alert(`✅ Subscribed to ${service.name}! NFT minted.`);
-  //       // 可觸發 setState 顯示 NFT 卡片 or fetch tokenId
-  //     }
-  //   } catch (err) {
-  //     console.error("❌ Subscription failed:", err);
-  //     alert("❌ Subscription failed or cancelled.");
-  //   }
-  // };
-  const handleSubscribe = async (service) => {
-    console.log("Subscribing to:", service.name);
+  const parsePrice = (priceString) => {
+    const numericString = priceString.replace(/^\$/, '').split('/')[0];
+    const value = parseFloat(numericString);
+    return value;
+  };
 
-    sendTransaction({ to, value: parseEther(value) })
-    while(isPending) {
-      console.log("Transaction is pending...");
+
+  const handleSubscribe = async (service) => {
+    console.log("🔔 Subscribing to:", service.name);
+  
+    // 1. Chain check
+    if (currentChainId!== 80002) {
+      console.log("🔁 Switching to Polygon Amoy...");
+      try {
+        await switchChainAsync({ currentChainId: 80002 });
+        console.log("✅ Chain switched to Polygon Amoy");
+      } catch (err) {
+        console.error("❌ Failed to switch chain:", err);
+        return;
+      }
     }
-    console.log("Transaction hash:", hash);
-  }
+  
+    // 2. Prepare data
+    const tokenId = 100; // Replace if needed
+    const value = "0.0001";
+    console.log("🧾 Token ID:", tokenId);
+    console.log("💰 Service price (in MATIC):", value);
+  
+    try {
+      // 3. Write transaction
+      const txHash = await writeContractAsync({
+        address: CONTRACT_ADDRESS,
+        abi: ERC721_ABI,
+        functionName: "safeMint",
+        args: [userAddress, tokenId],
+        value: parseEther(value),
+      });
+  
+      console.log("📤 Transaction sent. Hash:", txHash);
+  
+      // 4. Wait for confirmation
+      const receipt = await waitForTransactionReceipt(config, { hash: txHash });
+      if (receipt.status === 'success') {
+        console.log("✅ Transaction confirmed in block:", receipt.blockNumber);
+      } else {
+        console.error("⚠️ Transaction failed or reverted.");
+      }
+    } catch (error) {
+      console.error("❌ Subscription failed:", error);
+      if (error?.cause?.message) {
+        console.error("🪲 Revert Reason:", error.cause.message);
+      }
+    }
+  };
+  // Example usage in your component
+  const exampleService = {
+    name: "Premium Subscription",
+    tokenId: 1, // Example token ID
+    price: "0.01", // Example price in MATIC
+  };
   
   return (
     <div className="subhub-container">

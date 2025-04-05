@@ -1,167 +1,119 @@
-import React, { useState, useEffect } from "react";
-import Web3 from "web3";
+import React, { useState } from "react";
+import {
+  useAccount,
+  useBalance,
+  useConnect,
+  useDisconnect,
+  useSignMessage,
+  useSwitchChain,
+  useChainId,
+  useConfig,
+} from "wagmi";
+import { metaMask } from "@wagmi/connectors";
+import { switchChain as switchChainViem } from 'viem/actions'
 import "./Wallet.css";
+import { supportedChains } from '../../config';
 
 const WALLET_TYPES = {
   METAMASK: "MetaMask",
-  OKX: "OKX Wallet",
 };
 
 const CHAINS = {
-  "0x1": { name: "Ethereum", icon: "/ethereum.svg" },
-  "0x89": { name: "Polygon", icon: "/polygon.svg" },
-  // 你可以繼續加入 Optimism、Arbitrum 等
+  [1]: { name: "Ethereum", icon: "/ethereum.svg" },
+  [137]: { name: "Polygon", icon: "/polygon.svg" },
+  [80002]: { name: "Polygon Amoy", icon: "/polygon.svg" },
 };
 
 const Wallet = () => {
-  const [web3, setWeb3] = useState(null);
-  const [account, setAccount] = useState(null);
-  const [balance, setBalance] = useState(0);
-  const [signature, setSignature] = useState("");
   const [showChains, setShowChains] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [selectedChainId, setSelectedChainId] = useState("0x1"); // 預設 Ethereum Mainnet
-
-
-  useEffect(() => {
-    if (window.ethereum) {
-      window.ethereum.on("accountsChanged", handleAccountsChanged);
-      window.ethereum.on("chainChanged", () => window.location.reload());
-    }
-    return () => {
-      if (window.ethereum) {
-        window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
-      }
-    };
-  }, []);
-
-  const handleAccountsChanged = (accounts) => {
-    if (accounts.length > 0) {
-      setAccount(accounts[0]);
-      getBalance(accounts[0]);
-    } else {
-      setAccount(null);
-      setBalance(0);
-    }
-  };
   
-  const findMetaMaskProvider = () => {
-    if (window.ethereum?.providers) {
-      return window.ethereum.providers.find((p) => p.isMetaMask);
-    }
-    return window.ethereum?.isMetaMask ? window.ethereum : null;
-  };
-  
+  const { address, isConnecting, isConnected } = useAccount();
+  const { data: balance } = useBalance({ address });
+  const { connect } = useConnect();
+  const { disconnect } = useDisconnect();
+  const { signMessage } = useSignMessage();
+  const { switchChain } = useSwitchChain();
+  const currentChainId = useChainId();
+  const config = useConfig();
+
   const connectWallet = async (walletType) => {
     setShowModal(false);
-    setIsConnecting(true);
     try {
-      const message = "請確認您要連接這個網站。";
-
       if (walletType === WALLET_TYPES.METAMASK) {
-        const metamaskProvider = findMetaMaskProvider();
-        
-        if (!metamaskProvider) {
-          alert("找不到 MetaMask，請確認已安裝並啟用");
-          return;
-        }
-  
-        const web3Instance = new Web3(metamaskProvider);
-  
-        const accounts = await metamaskProvider.request({
-          method: "eth_requestAccounts",
-        });
-  
-        if (!accounts || accounts.length === 0) {
-          throw new Error("未取得帳號");
-        }
-  
-        const account = accounts[0];
-  
-        const signedMessage = await metamaskProvider.request({
-          method: "personal_sign",
-          params: [message, account],
-        });
-        console.log("✅ MetaMask 簽名成功1:", signedMessage);
-        setWeb3(web3Instance);
-        setAccount(account);
-        getBalance(account, web3Instance);
-        setSignature(signedMessage);
-        console.log("✅ MetaMask 簽名成功:", signedMessage);
+        connect({ connector: metaMask() });
       }
-      else if (walletType === WALLET_TYPES.OKX && window.okxwallet) {
-        const web3Instance = new Web3(window.okxwallet);
 
-        const accounts = await window.okxwallet.request({
-          method: "eth_requestAccounts",
+      if (address) {
+        signMessage({ message: "請確認您要連接這個網站。" }, {
+          onSuccess: (signature) => console.log("✅ 簽名成功:", signature),
+          onError: (error) => console.error("❌ 簽名失敗:", error),
         });
-        const account = accounts[0];
-
-        const signedMessage = await window.okxwallet.request({
-          method: "personal_sign",
-          params: [message, account],
-        });
-
-        setWeb3(web3Instance);
-        setAccount(account);
-        getBalance(account, web3Instance);
-        setSignature(signedMessage);
-        console.log("OKX Wallet 簽名成功:", signedMessage);
-      } else {
-        alert("請確認已安裝對應錢包擴充功能！");
       }
     } catch (error) {
-      alert("使用者取消連線或簽名。");
-      console.error("❌ 錢包連接或簽名失敗", error);
-    } finally {
-      setIsConnecting(false);
-    }
-  };
-
-  const getBalance = async (address, web3Instance = web3) => {
-    if (!web3Instance || !address) return;
-    try {
-      const balanceWei = await web3Instance.eth.getBalance(address);
-      const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
-      setBalance(balanceEth);
-    } catch (error) {
-      console.error("獲取餘額失敗:", error);
+      console.error("❌ 錢包連接失敗", error);
+      alert("使用者取消連線或發生錯誤");
     }
   };
 
   const shortenAddress = (addr) => {
     return addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : "";
   };
+
   const handleSwitchChain = async (chainId) => {
-    const chainInfoMap = {
-      "0x1": {
-        chainId: "0x1",
-        chainName: "Ethereum Mainnet",
-        nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-        rpcUrls: ["https://mainnet.infura.io/v3/YOUR_INFURA_ID"],
-        blockExplorerUrls: ["https://etherscan.io"],
-      },
-      "0x89": {
-        chainId: "0x89",
-        chainName: "Polygon Mainnet",
-        nativeCurrency: { name: "MATIC", symbol: "MATIC", decimals: 18 },
-        rpcUrls: ["https://polygon-rpc.com"],
-        blockExplorerUrls: ["https://polygonscan.com"],
-      },
-      "0xa86a": {
-        chainId: "0xa86a",
-        chainName: "Avalanche",
-        nativeCurrency: { name: "Avalanche", symbol: "AVAX", decimals: 18 },
-        rpcUrls: ["https://api.avax.network/ext/bc/C/rpc"],
-        blockExplorerUrls: ["https://snowtrace.io"],
-      },
-    };
-  }  
-  
+    try {
+      const chain = supportedChains.find(c => c.id === chainId);
+      if (!chain) {
+        throw new Error(`Chain ${chainId} not supported`);
+      }
+
+      await switchChain(
+        { chainId },
+        {
+          onSuccess: () => {
+            setShowChains(false);
+            console.log("✅ 成功切換至", CHAINS[chainId].name);
+          },
+          onError: async (error) => {
+            console.error("❌ Initial switch failed:", error);
+            // Handle case where chain isn't added to wallet (error code 4902)
+            if (error.code === 4902) {
+              try {
+                const provider = await config.connectors[0].getProvider();
+                await provider.request({
+                  method: 'wallet_addEthereumChain',
+                  params: [{
+                    chainId: `0x${chainId.toString(16)}`,
+                    chainName: chain.name,
+                    nativeCurrency: chain.nativeCurrency,
+                    rpcUrls: chain.rpcUrls.default.http,
+                    blockExplorerUrls: [chain.blockExplorers?.default.url],
+                  }],
+                });
+                // After adding, try switching again
+                await switchChain({ chainId });
+                setShowChains(false);
+                console.log("✅ Chain added and switched to", CHAINS[chainId].name);
+              } catch (addError) {
+                console.error("❌ Failed to add chain:", addError);
+                alert("無法新增網絡，請手動在錢包中添加");
+              }
+            } else {
+              alert(`切換鏈失敗: ${error.message}`);
+            }
+          },
+        }
+      );
+    } catch (error) {
+      console.error("❌ 切換鏈失敗:", error);
+      alert("切換鏈失敗，請確認錢包設定");
+    }
+  };
+
+  // ... rest of your component (render part remains mostly the same)
   return (
     <div className="wallet-container">
-      {!account ? (
+      {!isConnected ? (
         <>
           <div className="connect-button" onClick={() => setShowModal(true)}>
             {isConnecting ? "連接中..." : "Connect Wallet"}
@@ -176,15 +128,8 @@ const Wallet = () => {
                 >
                   🦊 MetaMask
                 </div>
-                <div
-                  className="wallet-option"
-                  onClick={() => connectWallet(WALLET_TYPES.OKX)}
-                >
-                  🔶 OKX Wallet
-                </div>
               </div>
             </div>
-            
           )}
         </>
       ) : (
@@ -192,13 +137,21 @@ const Wallet = () => {
           <div className="wallet-info">
             <div className="chain-dropdown">
               <div className="chain-selector" onClick={() => setShowChains(!showChains)}>
-                <img src={CHAINS[selectedChainId]?.icon} alt="chain" className="chain-icon" />
+                <img 
+                  src={CHAINS[currentChainId]?.icon} 
+                  alt="chain" 
+                  className="chain-icon" 
+                />
                 <span className="arrow">▼</span>
               </div>
               {showChains && (
                 <div className="chain-list">
                   {Object.entries(CHAINS).map(([id, chain]) => (
-                    <div key={id} className="chain-item" onClick={() => handleSwitchChain(id)}>
+                    <div
+                      key={id}
+                      className="chain-item"
+                      onClick={() => handleSwitchChain(Number(id))}
+                    >
                       <img src={chain.icon} alt={chain.name} className="chain-icon" />
                       {chain.name}
                     </div>
@@ -207,17 +160,11 @@ const Wallet = () => {
               )}
             </div>
 
-            <div className="wallet-address">{shortenAddress(account)}</div>
-            <div className="wallet-balance">{parseFloat(balance).toFixed(3)} ETH</div>
-            <div
-              className="disconnect-button"
-              onClick={() => {
-                setAccount(null);
-                setBalance(0);
-                setSignature("");
-                setWeb3(null);
-              }}
-            >
+            <div className="wallet-address">{shortenAddress(address)}</div>
+            <div className="wallet-balance">
+              {balance ? parseFloat(balance.formatted).toFixed(3) : "0"} {balance?.symbol}
+            </div>
+            <div className="disconnect-button" onClick={() => disconnect()}>
               <img src="./image.png" alt="Disconnect" />
             </div>
           </div>

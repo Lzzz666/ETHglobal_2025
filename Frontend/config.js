@@ -1,17 +1,43 @@
-import { http, createConfig } from 'wagmi'
-import { base, mainnet } from 'wagmi/chains'
-import { injected, metaMask } from 'wagmi/connectors'
+import { http, createConfig } from 'wagmi';
+import { polygon } from 'wagmi/chains';
+import { metaMask } from '@wagmi/connectors';
+
+const polygonAmoy = {
+  id: 80002,
+  name: 'Polygon Amoy',
+  network: 'polygon-amoy',
+  nativeCurrency: {
+    name: 'MATIC',
+    symbol: 'MATIC',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: [`https://polygon-amoy.g.alchemy.com/v2/sCFum5qcFFWmP3SwpXCLp5mwwgMs0zUr`],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'PolygonScan',
+      url: 'https://amoy.polygonscan.com',
+    },
+  },
+  testnet: true,
+};
 
 export const config = createConfig({
-  chains: [mainnet, base],
+  chains: [polygon, polygonAmoy],
   connectors: [
-    injected(),
-    metaMask(),
+    metaMask({
+      dappMetadata: {
+        name: 'Your DApp Name',
+      },
+    }),
   ],
   transports: {
-    [mainnet.id]: http(),
-    [base.id]: http(), 
+    [polygon.id]: http('https://polygon-rpc.com'),
+    [polygonAmoy.id]: http(`https://polygon-amoy.g.alchemy.com/v2/sCFum5qcFFWmP3SwpXCLp5mwwgMs0zUr`),
   },
-})
+});
 
-
+export const supportedChains = [polygon, polygonAmoy];
