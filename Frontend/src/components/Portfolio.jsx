@@ -21,6 +21,7 @@ const Portfolio = () => {
     "0x50ec05ade8280758e2077fcbc08d878d4aef79c3"
   );
   const [totalValue, setTotalValue] = useState(0);
+  const [chartData, setChartData] = useState([]);
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
