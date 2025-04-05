@@ -19,41 +19,117 @@ const networks = [
   "optimistic",
   "base",
   "zksync",
-]; // 可根據您的需求調整網路列表
+];
 
 const Portfolio = () => {
   const [activeCategory, setActiveCategory] = useState("Token");
   const [activeRange, setActiveRange] = useState("1Y");
-  const [activeNetwork, setActiveNetwork] = useState("ethereum"); // 預設網路
+  const [activeNetwork, setActiveNetwork] = useState("ethereum");
+  const [apiMode, setApiMode] = useState("standard"); // 'standard' 或 'combined'
 
   const [walletAddress] = useState(
     "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-  ); // TODO: 後續可改為 props 或從錢包取得
+  );
   const [totalValue, setTotalValue] = useState(0);
   const [chartData, setChartData] = useState([]);
   const [assets, setAssets] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // 添加一個函數專門用於獲取 CombinedBalance 資料
+  const fetchCombinedBalance = async () => {
+    try {
+      const res = await fetch(
+        `http://127.0.0.1:5000/api/Token/CombinedBalance/${activeNetwork}/${walletAddress}`
+      );
+
+      if (!res.ok) throw new Error("API 錯誤");
+
+      const data = await res.json();
+      console.log("Combined Balance Data:", data);
+
+      // 解析組合餘額資料格式
+      const parsedAssets = Object.entries(data).map(([key, value]) => {
+        // 解析地址和名稱，例如 "0xAddress (TokenName)"
+        const addressMatch = key.match(/(0x[a-fA-F0-9]+) \((.*?)\)/);
+        const address = addressMatch ? addressMatch[1] : key;
+        const name = addressMatch ? addressMatch[2] : "Unknown Token";
+
+        // 解析餘額和 USD 值，例如 "12.345(USD=12.34)"
+        const balanceMatch = value.match(/([\d.e+-]+)\(USD=([\d.]+)\)/);
+        const balance = balanceMatch ? balanceMatch[1] : "0.0";
+        const usdValue = balanceMatch ? parseFloat(balanceMatch[2]) : 0;
+
+        return {
+          address,
+          name,
+          balance,
+          usdValue,
+        };
+      });
+
+      // 計算總 USD 值
+      const totalUSD = parsedAssets.reduce(
+        (sum, asset) => sum + asset.usdValue,
+        0
+      );
+      setTotalValue(totalUSD);
+
+      // 建立圖表資料
+      const chartDataFormat = parsedAssets
+        .filter((asset) => parseFloat(asset.balance) > 0)
+        .map((asset) => ({
+          name: asset.name,
+          value: asset.usdValue,
+        }));
+      setChartData(chartDataFormat);
+
+      // 格式化資產資料用於顯示
+      setAssets(
+        parsedAssets.map((asset) => ({
+          name: asset.name,
+          icon: "💰",
+          tag: activeCategory,
+          amount: `${asset.balance}`,
+          value: `$${asset.usdValue.toFixed(2)}`,
+          diff: "0%",
+          change: "0%",
+          changeColor: "green",
+        }))
+      );
+
+      setLoading(false);
+    } catch (err) {
+      console.error("組合餘額 API 錯誤:", err);
+      setError("❌ 無法取得組合餘額資料，請稍後再試");
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     const fetchPortfolio = async () => {
       setLoading(true);
       setError(null);
+
+      // 根據模式選擇使用哪個 API
+      if (apiMode === "combined") {
+        fetchCombinedBalance();
+        return;
+      }
+
       try {
-        // 使用新的 API 端點
+        // 原始 API 端點邏輯
         const res = await fetch(
           `http://127.0.0.1:5000/api/Token/TokenBalance/${activeNetwork}/${walletAddress}`
         );
 
-        // 打印 HTTP 回應本身，而不是嘗試讀取 body
-        console.log("HTTP Response:", res);
+        // 只打印回應狀態，避免消耗 body stream
+        console.log("HTTP Response Status:", res.status, res.statusText);
 
         if (!res.ok) throw new Error("API 錯誤");
 
         // 只讀取一次 res.json()
         const data = await res.json();
-
-        // 打印完整的回傳資料
         console.log("API Response Data:", data);
 
         // 計算所有資產的總和，將字串轉換為數字
@@ -66,33 +142,39 @@ const Portfolio = () => {
           0
         );
 
-        // 打印加總結果
         console.log("Total Assets Value:", totalAssets);
-
-        // 更新顯示的總值
         setTotalValue(totalAssets);
 
-        // 處理資產數據用於圖表和資產列表
         if (data) {
-          // 處理歷史數據用於圖表
           const chartDataFormat =
             data.historicalData?.[activeRange] ||
             Object.entries(data).map(([address, value]) => ({
               name: address.substring(0, 8),
-              value: typeof value === "number" ? value : 0,
+              value:
+                typeof value === "string" && !isNaN(value)
+                  ? parseInt(value, 10)
+                  : typeof value === "number"
+                    ? value
+                    : 0,
             }));
           setChartData(chartDataFormat);
 
-          // 處理資產數據
           const assetsData =
             data.tokens ||
             Object.entries(data)
-              .filter(([_, value]) => typeof value === "number" && value > 0)
+              .filter(
+                ([_, value]) =>
+                  (typeof value === "string" &&
+                    !isNaN(value) &&
+                    parseInt(value, 10) > 0) ||
+                  (typeof value === "number" && value > 0)
+              )
               .map(([address, value]) => ({
                 name: address,
-                balance: value,
+                balance: typeof value === "string" ? value : value.toString(),
                 symbol: "",
-                valueUsd: value,
+                valueUsd:
+                  typeof value === "string" ? parseInt(value, 10) : value,
                 priceChangeUsd: 0,
                 priceChangePercent: "0%",
               }));
@@ -100,7 +182,7 @@ const Portfolio = () => {
           setAssets(
             assetsData.map((token) => ({
               name: token.name,
-              icon: token.icon || "💰", // 預設圖示
+              icon: token.icon || "💰",
               tag: token.tag || activeCategory,
               amount: `${token.balance} ${token.symbol}`,
               value: `$${token.valueUsd?.toLocaleString() || "0"}`,
@@ -121,11 +203,10 @@ const Portfolio = () => {
     };
 
     fetchPortfolio();
-  }, [walletAddress, activeCategory, activeRange, activeNetwork]);
+  }, [walletAddress, activeCategory, activeRange, activeNetwork, apiMode]);
 
   return (
     <div className="portfolio-card">
-      {/* 其餘 JSX 保持不變 */}
       <div className="top-section">
         <div className="chart-area">
           <ResponsiveContainer width="100%" height={80}>
@@ -148,7 +229,23 @@ const Portfolio = () => {
         </div>
       </div>
 
-      {/* 新增網路選擇器 */}
+      {/* API 模式選擇器 */}
+      <div className="api-mode-selector">
+        <button
+          className={apiMode === "standard" ? "active" : ""}
+          onClick={() => setApiMode("standard")}
+        >
+          標準 API
+        </button>
+        <button
+          className={apiMode === "combined" ? "active" : ""}
+          onClick={() => setApiMode("combined")}
+        >
+          組合餘額 API
+        </button>
+      </div>
+
+      {/* 網路選擇器 */}
       <div className="network-selector">
         <select
           value={activeNetwork}
