@@ -1,0 +1,7 @@
+.app-root {
+    box-sizing: border-box; /* ✅ 讓 border 不會超出容器 */
+}
+  
+body {
+    font-family: "Noto Sans TC", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}

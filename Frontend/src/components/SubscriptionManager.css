@@ -1,0 +1,149 @@
+/* Container */
+.subscription-manager {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+/* Top Info Card */
+.info-card {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  margin-bottom: 24px;
+  /* border: 1px solid #000; */
+}
+
+.info-item {
+  /* margin-bottom: 16px; */
+  flex: 1;
+  min-width: 200px;
+  /* padding-right: 16px; */
+  /* border: 1px solid #000; */
+}
+
+.info-title {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 8px;
+  text-align: center;
+  /* border: 1px solid #000; */
+}
+
+.info-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #0071f3a7;
+  /* border: 1px solid #000; */
+  text-align: center;
+}
+
+.info-value.paid {
+  color: #0071f3a7;
+}
+.info-value.totalpaid {
+  color: #0071f3a7;
+}
+
+/* Subscription List Table */
+.subscription-table-container {
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.subscription-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.subscription-table thead {
+  background-color: #f7f7f7;
+}
+
+.subscription-table th,
+.subscription-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  font-size: 16px;
+}
+
+.subscription-table tbody tr:hover {
+  background-color: #f0f0f0;
+}
+
+/* Buttons */
+.btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 8px;
+}
+
+.btn.transfer {
+  background-color: #0071f3ba;
+  color: #fff;
+}
+
+.btn.transfer:hover {
+  background-color: #005bb59e;
+}
+
+.btn.cancel {
+  background-color: #e74d3cbd;
+  color: #fff;
+}
+
+.btn.cancel:hover {
+  background-color: #c03a2b86;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .info-card {
+    flex-direction: column;
+  }
+  .info-item {
+    margin-bottom: 12px;
+  }
+}
+.input {
+  width: 90%;
+  padding: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.modal-warning {
+  font-size: 0.9rem;
+  color: #d9534f;
+  margin-bottom: 1rem;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.subscribe-btn{
+  color: white;
+}

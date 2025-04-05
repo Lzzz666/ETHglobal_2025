@@ -1,0 +1,143 @@
+.wallet-container {
+  text-align: center;
+
+}
+
+.disconnect-button {
+  color: white;
+  padding-top: 18px;
+}
+.disconnect-button:hover {
+  cursor: pointer;
+}
+
+
+.connect-button{
+  background-color: #0a57cac8;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  /* margin-top: 20px; */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+.connect-button:hover {
+  background-color: #0a57ca34;
+  cursor: pointer;
+}
+
+.account-box {
+  border-radius: 16px;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+.wallet-address,
+.wallet-balance,
+.wallet-sig {
+  margin: 12px 0;
+  font-size: 16px;
+  /* border: 1px solid #000000; */
+  border-radius: 8px;
+  padding: 5px;
+  background-color: #9fc1e454;
+}
+
+/* Modal Style */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 16px;
+  text-align: center;
+  width: 300px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.wallet-option {
+  padding: 12px;
+  margin: 8px 0;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.wallet-option:hover {
+  background-color: #e2e6ea;
+}
+
+.wallet-info{
+  display: flex;
+  gap: 8px;
+  /* border: 1px solid #000; */
+}
+img{
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.chain-dropdown {
+  position: relative;
+  display: inline-block;
+  margin-right: 12px;
+  padding-top: 10px;
+  /* border: 1px solid #000; */
+}
+
+.chain-selector {
+  display: flex;
+  align-items: center;
+  background: #f5f5f5;
+  padding: 6px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.chain-selector .chain-icon {
+  width: 20px;
+  margin-right: 8px;
+}
+
+.chain-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  z-index: 100;
+  width: 160px;
+}
+
+.chain-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.chain-item:hover {
+  background-color: #eee;
+}
+
+.chain-item .chain-icon {
+  width: 20px;
+  margin-right: 8px;
+}

@@ -1,0 +1,24 @@
+.app-root {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .chat-layout {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    overflow: hidden;
+  }
+  
+  .app-container {
+    flex: 1;
+    padding: 1rem;
+    /* overflow-y: auto; */
+    /* border-right: 1px solid #ddd; */
+  }
+  
+  .app-container:last-child {
+    border-right: none;
+  }
+  

@@ -1,0 +1,58 @@
+.chat-container {
+    display: flex;
+    flex-direction: column;
+    width: 600px;
+    height: 80vh;
+
+    padding: 16px;
+    /* border: 1px solid #000; */
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .message-area {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 16px;
+    padding-right: 8px;
+    display: flex;
+    flex-direction: column; /* ⭐ 讓訊息上下排列 */
+  }
+  
+  
+  .message {
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    max-width: 80%;
+    word-wrap: break-word;
+  }
+  
+  
+  .user-message {
+    background-color: #f1f1f1;
+    color: black;
+    text-align: right;
+    align-self: flex-end; /* ⭐ 右邊 */
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    width: fit-content;
+    word-break: break-word;
+  }
+  
+  .mcp-message {
+
+    align-self: flex-start;
+  }
+  
+  .input-area textarea {
+    width: 90%;
+    height: 100px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    resize: none;
+    margin-left: 20px;
+  }
+  

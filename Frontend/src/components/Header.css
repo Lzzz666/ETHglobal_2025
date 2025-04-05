@@ -1,0 +1,78 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background-color: white;
+  border-bottom: 1px solid #dee2e6;
+  position: sticky;
+  top: 0;
+  /* z-index: 10; */
+  width: 100%; /* ✅ 改這裡 */
+  box-sizing: border-box; /* ✅ 確保 padding 不會外溢 */
+  /* border: 1px solid #000; ✅ 加上邊框 */
+}
+
+  
+  .logo {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .setting-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+  }
+  
+  .setting-btn:hover {
+    background-color: #e2e6ea;
+  }
+  .setting-btn {
+    position: relative;
+    cursor: pointer;
+    font-size: 24px;
+    padding: 6px;
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    width: 120px;
+  }
+  
+  .menu-item {
+    padding: 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .menu-item:hover {
+    background-color: #f0f0f0;
+  }
+  .logo {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+  }
+  
+  .logo:hover {
+    opacity: 0.8;
+  }
+  
