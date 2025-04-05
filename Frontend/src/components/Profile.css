@@ -58,3 +58,51 @@
 .asset-address {
   color: gray;
 }
+
+/* 通用按鈕樣式 */
+.button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  background-color: #3b82f6; /* 藍色背景 */
+  color: #ffffff; /* 白色文字 */
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  transition:
+    background-color 0.3s ease,
+    transform 0.2s ease;
+}
+
+.button:hover {
+  background-color: #2563eb; /* 深藍色背景 */
+}
+
+.button:active {
+  transform: scale(0.95); /* 按下時縮小效果 */
+}
+
+/* 類別按鈕 */
+.category-button {
+  margin: 4px;
+}
+
+.category-button.active {
+  background-color: #2563eb; /* 深藍色背景 */
+}
+
+/* 時間範圍按鈕 */
+.time-range-button {
+  margin: 4px;
+}
+
+.time-range-button.active {
+  background-color: #2563eb; /* 深藍色背景 */
+}
+
+.asset-divider {
+  border: none;
+  border-top: 1px solid #e5e7eb; /* 淺灰色分隔線 */
+  margin: 8px auto;
+}
