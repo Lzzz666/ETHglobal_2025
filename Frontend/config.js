@@ -7,13 +7,13 @@ const polygonAmoy = {
   name: 'Polygon Amoy',
   network: 'polygon-amoy',
   nativeCurrency: {
-    name: 'MATIC',
-    symbol: 'MATIC',
+    name: 'POL',
+    symbol: 'POL',
     decimals: 18,
   },
   rpcUrls: {
     default: {
-      http: [`https://polygon-amoy.g.alchemy.com/v2/sCFum5qcFFWmP3SwpXCLp5mwwgMs0zUr`],
+      http: [`https://rpc-amoy.polygon.technology`],
     },
   },
   blockExplorers: {
@@ -36,7 +36,7 @@ export const config = createConfig({
   ],
   transports: {
     [polygon.id]: http('https://polygon-rpc.com'),
-    [polygonAmoy.id]: http(`https://polygon-amoy.g.alchemy.com/v2/sCFum5qcFFWmP3SwpXCLp5mwwgMs0zUr`),
+    [polygonAmoy.id]: http(`https://rpc-amoy.polygon.technology`),
   },
 });
 

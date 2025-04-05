@@ -210,7 +210,7 @@ export default function SubHub() {
   });
   const currentChainId = useChainId();
   
-  const CONTRACT_ADDRESS = "0x7A685946B5d7673e5AB18bDd1471979fd133e909";
+  const CONTRACT_ADDRESS = "0x09AF6F37BEA695fBD170f1738Ce9BEf0D3730166";
 
   const { connectors, connect } = useConnect()
   console.log("Connectors:", connectors)
@@ -233,11 +233,11 @@ export default function SubHub() {
     console.log("🔔 Subscribing to:", service.name);
   
     // 1. Chain check
-    if (currentChainId !== 137) {
-      console.log("🔁 Switching to Polygon Mainnet...");
+    if (currentChainId!== 80002) {
+      console.log("🔁 Switching to Polygon Amoy...");
       try {
-        await switchChainAsync({ currentChainId: 137 });
-        console.log("✅ Chain switched to Polygon Mainnet");
+        await switchChainAsync({ currentChainId: 80002 });
+        console.log("✅ Chain switched to Polygon Amoy");
       } catch (err) {
         console.error("❌ Failed to switch chain:", err);
         return;
@@ -245,7 +245,7 @@ export default function SubHub() {
     }
   
     // 2. Prepare data
-    const tokenId = 100; // Replace if needed
+    const tokenId = Math.floor(Math.random() * 1000000);
     const value = "0.0001";
     console.log("🧾 Token ID:", tokenId);
     console.log("💰 Service price (in POL):", value);
@@ -257,7 +257,7 @@ export default function SubHub() {
         abi: ERC721_ABI,
         functionName: "safeMint",
         args: [userAddress, tokenId],
-        value: parseEther(value),
+        // value: parseEther(value),
       });
   
       console.log("📤 Transaction sent. Hash:", txHash);
@@ -277,12 +277,7 @@ export default function SubHub() {
     }
   };
   // Example usage in your component
-  const exampleService = {
-    name: "Premium Subscription",
-    tokenId: 1, // Example token ID
-    price: "0.01", // Example price in POL
-  };
-  
+
   return (
     <div className="subhub-container">
       <div className="category-tabs">
