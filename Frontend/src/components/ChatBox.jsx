@@ -1,24 +1,24 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./ChatBox.css";
+import { useMCPClient } from "./MCPClient";
 
 export default function ChatBox() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const bottomRef = useRef(null);
+  const { sendToMCP, isLoading, error } = useMCPClient();
 
   const sendMessage = async () => {
     if (!input.trim()) return;
+
+    // 新增使用者訊息到對話框
     const newMessages = [...messages, { role: "user", content: input }];
     setMessages(newMessages);
     setInput("");
-  
+
     try {
-      const response = await fetch("http://localhost:3001/api/query", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input }),
-      });
-      const data = await response.json();
+      // 呼叫 MCPClient 傳送訊息
+      const data = await sendToMCP(input);
       setMessages([
         ...newMessages,
         { role: "mcp", content: data.reply || "沒有回覆" },
@@ -27,11 +27,11 @@ export default function ChatBox() {
       console.error("呼叫 MCP server 錯誤：", error);
       setMessages([
         ...newMessages,
-        { role: "mcp", content: "系統錯誤，請稍後再試" },
+        { role: "mcp", content: `系統錯誤，請稍後再試：${error.message}` },
       ]);
     }
   };
-  
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
