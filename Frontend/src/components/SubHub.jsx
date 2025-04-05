@@ -210,7 +210,7 @@ export default function SubHub() {
   });
   const currentChainId = useChainId();
   
-  const CONTRACT_ADDRESS = "0x5BD6BA046bCC634A52214D6c0b96b0c1739CE96A";
+  const CONTRACT_ADDRESS = "0x7A685946B5d7673e5AB18bDd1471979fd133e909";
 
   const { connectors, connect } = useConnect()
   console.log("Connectors:", connectors)
@@ -233,11 +233,11 @@ export default function SubHub() {
     console.log("🔔 Subscribing to:", service.name);
   
     // 1. Chain check
-    if (currentChainId!== 80002) {
-      console.log("🔁 Switching to Polygon Amoy...");
+    if (currentChainId !== 137) {
+      console.log("🔁 Switching to Polygon Mainnet...");
       try {
-        await switchChainAsync({ currentChainId: 80002 });
-        console.log("✅ Chain switched to Polygon Amoy");
+        await switchChainAsync({ currentChainId: 137 });
+        console.log("✅ Chain switched to Polygon Mainnet");
       } catch (err) {
         console.error("❌ Failed to switch chain:", err);
         return;
@@ -248,7 +248,7 @@ export default function SubHub() {
     const tokenId = 100; // Replace if needed
     const value = "0.0001";
     console.log("🧾 Token ID:", tokenId);
-    console.log("💰 Service price (in MATIC):", value);
+    console.log("💰 Service price (in POL):", value);
   
     try {
       // 3. Write transaction
@@ -280,7 +280,7 @@ export default function SubHub() {
   const exampleService = {
     name: "Premium Subscription",
     tokenId: 1, // Example token ID
-    price: "0.01", // Example price in MATIC
+    price: "0.01", // Example price in POL
   };
   
   return (
